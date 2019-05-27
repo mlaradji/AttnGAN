@@ -14,8 +14,15 @@ from GlobalAttention import GlobalAttentionGeneral as ATT_NET
 
 # ############## Text2Image Encoder-Decoder #######
 class RNN_ENCODER(nn.Module):
-    def __init__(self, ntoken, ninput=300, drop_prob=0.5,
-                 nhidden=128, nlayers=1, bidirectional=True):
+    def __init__(
+        self,
+        ntoken,
+        ninput=300,
+        drop_prob=0.5,
+        nhidden=128,
+        nlayers=1,
+        bidirectional=True,
+    ):
         super(RNN_ENCODER, self).__init__()
 
         self.n_steps = cfg.TEXT.WORDS_NUM
@@ -40,18 +47,26 @@ class RNN_ENCODER(nn.Module):
     def define_module(self):
         self.encoder = nn.Embedding(self.ntoken, self.ninput)
         self.drop = nn.Dropout(self.drop_prob)
-        if self.rnn_type == 'LSTM':
+        if self.rnn_type == "LSTM":
             # dropout: If non-zero, introduces a dropout layer on
             # the outputs of each RNN layer except the last layer
-            self.rnn = nn.LSTM(self.ninput, self.nhidden,
-                               self.nlayers, batch_first=True,
-                               dropout=self.drop_prob,
-                               bidirectional=self.bidirectional)
-        elif self.rnn_type == 'GRU':
-            self.rnn = nn.GRU(self.ninput, self.nhidden,
-                              self.nlayers, batch_first=True,
-                              dropout=self.drop_prob,
-                              bidirectional=self.bidirectional)
+            self.rnn = nn.LSTM(
+                self.ninput,
+                self.nhidden,
+                self.nlayers,
+                batch_first=True,
+                dropout=self.drop_prob,
+                bidirectional=self.bidirectional,
+            )
+        elif self.rnn_type == "GRU":
+            self.rnn = nn.GRU(
+                self.ninput,
+                self.nhidden,
+                self.nlayers,
+                batch_first=True,
+                dropout=self.drop_prob,
+                bidirectional=self.bidirectional,
+            )
         else:
             raise NotImplementedError
 
@@ -65,14 +80,25 @@ class RNN_ENCODER(nn.Module):
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
-        if self.rnn_type == 'LSTM':
-            return (Variable(weight.new(self.nlayers * self.num_directions,
-                                        bsz, self.nhidden).zero_()),
-                    Variable(weight.new(self.nlayers * self.num_directions,
-                                        bsz, self.nhidden).zero_()))
+        if self.rnn_type == "LSTM":
+            return (
+                Variable(
+                    weight.new(
+                        self.nlayers * self.num_directions, bsz, self.nhidden
+                    ).zero_()
+                ),
+                Variable(
+                    weight.new(
+                        self.nlayers * self.num_directions, bsz, self.nhidden
+                    ).zero_()
+                ),
+            )
         else:
-            return Variable(weight.new(self.nlayers * self.num_directions,
-                                       bsz, self.nhidden).zero_())
+            return Variable(
+                weight.new(
+                    self.nlayers * self.num_directions, bsz, self.nhidden
+                ).zero_()
+            )
 
     def forward(self, captions, cap_lens, hidden, mask=None):
         # input: torch.LongTensor of size batch x n_steps
@@ -95,14 +121,12 @@ class RNN_ENCODER(nn.Module):
         # --> batch x hidden_size*num_directions x seq_len
         words_emb = output.transpose(1, 2)
         # --> batch x num_directions*hidden_size
-        if self.rnn_type == 'LSTM':
+        if self.rnn_type == "LSTM":
             sent_emb = hidden[0].transpose(0, 1).contiguous()
         else:
             sent_emb = hidden.transpose(0, 1).contiguous()
         sent_emb = sent_emb.view(-1, self.nhidden * self.num_directions)
         return words_emb, sent_emb
-
-
 
 
 class G_NET(nn.Module):
@@ -112,7 +136,6 @@ class G_NET(nn.Module):
         ngf = cfg.GAN.GF_DIM
         nef = cfg.TEXT.EMBEDDING_DIM
         ncf = cfg.GAN.CONDITION_DIM
-
 
         self.ca_net = CA_NET()
 
@@ -144,15 +167,13 @@ class G_NET(nn.Module):
             fake_img1 = self.img_net1(h_code1)
             fake_imgs.append(fake_img1)
         if cfg.TREE.BRANCH_NUM > 1:
-            h_code2, att1 = \
-                self.h_net2(h_code1, c_code, word_embs, mask)
+            h_code2, att1 = self.h_net2(h_code1, c_code, word_embs, mask)
             fake_img2 = self.img_net2(h_code2)
             fake_imgs.append(fake_img2)
             if att1 is not None:
                 att_maps.append(att1)
         if cfg.TREE.BRANCH_NUM > 2:
-            h_code3, att2 = \
-                self.h_net3(h_code2, c_code, word_embs, mask)
+            h_code3, att2 = self.h_net3(h_code2, c_code, word_embs, mask)
             fake_img3 = self.img_net3(h_code3)
             fake_imgs.append(fake_img3)
             if att2 is not None:
@@ -176,8 +197,8 @@ class CA_NET(nn.Module):
 
     def encode(self, text_embedding):
         x = self.relu(self.fc(text_embedding))
-        mu = x[:, :self.c_dim]
-        logvar = x[:, self.c_dim:]
+        mu = x[:, : self.c_dim]
+        logvar = x[:, self.c_dim :]
         return mu, logvar
 
     def reparametrize(self, mu, logvar):
@@ -195,46 +216,47 @@ class CA_NET(nn.Module):
         return c_code, mu, logvar
 
 
-
 class GLU(nn.Module):
     def __init__(self):
         super(GLU, self).__init__()
 
     def forward(self, x):
         nc = x.size(1)
-        assert nc % 2 == 0, 'channels dont divide 2!'
-        nc = int(nc/2)
+        assert nc % 2 == 0, "channels dont divide 2!"
+        nc = int(nc / 2)
         return x[:, :nc] * torch.sigmoid(x[:, nc:])
 
 
 def conv1x1(in_planes, out_planes, bias=False):
     "1x1 convolution with padding"
-    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1,
-                     padding=0, bias=bias)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=1, stride=1, padding=0, bias=bias
+    )
 
 
 def conv3x3(in_planes, out_planes):
     "3x3 convolution with padding"
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=1,
-                     padding=1, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=3, stride=1, padding=1, bias=False
+    )
 
 
 # Upsale the spatial size by a factor of 2
 def upBlock(in_planes, out_planes):
-    block = nn.Sequential(
-        nn.functional.interpolate(scale_factor=2, mode='nearest'),
+    block = lambda x: nn.Sequential(
+        nn.functional.interpolate(x, scale_factor=2, mode="nearest"),
         conv3x3(in_planes, out_planes * 2),
         nn.BatchNorm2d(out_planes * 2),
-        GLU())
+        GLU(),
+    )
     return block
 
 
 # Keep the spatial size
 def Block3x3_relu(in_planes, out_planes):
     block = nn.Sequential(
-        conv3x3(in_planes, out_planes * 2),
-        nn.BatchNorm2d(out_planes * 2),
-        GLU())
+        conv3x3(in_planes, out_planes * 2), nn.BatchNorm2d(out_planes * 2), GLU()
+    )
     return block
 
 
@@ -246,14 +268,14 @@ class ResBlock(nn.Module):
             nn.BatchNorm2d(channel_num * 2),
             GLU(),
             conv3x3(channel_num, channel_num),
-            nn.BatchNorm2d(channel_num))
+            nn.BatchNorm2d(channel_num),
+        )
 
     def forward(self, x):
         residual = x
         out = self.block(x)
         out += residual
         return out
-
 
 
 class CNN_ENCODER(nn.Module):
@@ -265,11 +287,11 @@ class CNN_ENCODER(nn.Module):
             self.nef = 256  # define a uniform ranker
 
         model = models.inception_v3()
-        url = 'https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth'
+        url = "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
         model.load_state_dict(model_zoo.load_url(url))
         for param in model.parameters():
             param.requires_grad = False
-        print('Load pretrained model from ', url)
+        print("Load pretrained model from ", url)
         # print(model)
 
         self.define_module(model)
@@ -304,7 +326,7 @@ class CNN_ENCODER(nn.Module):
     def forward(self, x):
         features = None
         # --> fixed-size input: batch x 3 x 299 x 299
-        x = nn.functional.interpolate(x,size=(299, 299), mode='bilinear')
+        x = nn.functional.interpolate(x, size=(299, 299), mode="bilinear")
         # 299 x 299 x 3
         x = self.Conv2d_1a_3x3(x)
         # 149 x 149 x 32
@@ -378,7 +400,8 @@ class INIT_STAGE_G(nn.Module):
             nn.Linear(nz, ngf * 4 * 4 * 2, bias=False),
             # removing for single instance caption
             nn.BatchNorm1d(ngf * 4 * 4 * 2),
-            GLU())
+            GLU(),
+        )
 
         self.upsample1 = upBlock(ngf, ngf // 2)
         self.upsample2 = upBlock(ngf // 2, ngf // 4)
@@ -450,10 +473,7 @@ class GET_IMAGE_G(nn.Module):
     def __init__(self, ngf):
         super(GET_IMAGE_G, self).__init__()
         self.gf_dim = ngf
-        self.img = nn.Sequential(
-            conv3x3(ngf, 3),
-            nn.Tanh()
-        )
+        self.img = nn.Sequential(conv3x3(ngf, 3), nn.Tanh())
 
     def forward(self, h_code):
         out_img = self.img(h_code)
@@ -508,7 +528,7 @@ def Block3x3_leakRelu(in_planes, out_planes):
     block = nn.Sequential(
         conv3x3(in_planes, out_planes),
         nn.BatchNorm2d(out_planes),
-        nn.LeakyReLU(0.2, inplace=True)
+        nn.LeakyReLU(0.2, inplace=True),
     )
     return block
 
@@ -518,7 +538,7 @@ def downBlock(in_planes, out_planes):
     block = nn.Sequential(
         nn.Conv2d(in_planes, out_planes, 4, 2, 1, bias=False),
         nn.BatchNorm2d(out_planes),
-        nn.LeakyReLU(0.2, inplace=True)
+        nn.LeakyReLU(0.2, inplace=True),
     )
     return block
 
@@ -540,7 +560,7 @@ def encode_image_by_16times(ndf):
         # --> state size 8ndf x in_size/16 x in_size/16
         nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
         nn.BatchNorm2d(ndf * 8),
-        nn.LeakyReLU(0.2, inplace=True)
+        nn.LeakyReLU(0.2, inplace=True),
     )
     return encode_img
 
@@ -555,8 +575,8 @@ class D_GET_LOGITS(nn.Module):
             self.jointConv = Block3x3_leakRelu(ndf * 8 + nef, ndf * 8)
 
         self.outlogits = nn.Sequential(
-            nn.Conv2d(ndf * 8, 1, kernel_size=4, stride=4),
-            nn.Sigmoid())
+            nn.Conv2d(ndf * 8, 1, kernel_size=4, stride=4), nn.Sigmoid()
+        )
 
     def forward(self, h_code, c_code=None):
         if self.bcondition and c_code is not None:
@@ -609,8 +629,8 @@ class D_NET128(nn.Module):
         self.COND_DNET = D_GET_LOGITS(ndf, nef, bcondition=True)
 
     def forward(self, x_var):
-        x_code8 = self.img_code_s16(x_var)   # 8 x 8 x 8df
-        x_code4 = self.img_code_s32(x_code8)   # 4 x 4 x 16df
+        x_code8 = self.img_code_s16(x_var)  # 8 x 8 x 8df
+        x_code4 = self.img_code_s32(x_code8)  # 4 x 4 x 16df
         x_code4 = self.img_code_s32_1(x_code4)  # 4 x 4 x 8df
         return x_code4
 
