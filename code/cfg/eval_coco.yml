@@ -14,14 +14,14 @@ TRAIN:
     FLAG: False
     NET_G: '../models/coco_AttnGAN2.pth'
     B_NET_D: False
-    BATCH_SIZE: 100
+    BATCH_SIZE: 10
     NET_E: '../DAMSMencoders/coco/text_encoder100.pth'
 
 
 GAN:
     DF_DIM: 96
     GF_DIM: 48
-    Z_DIM: 100
+    Z_DIM: 50
     R_NUM: 3
 
 TEXT:
