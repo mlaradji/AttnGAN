@@ -11,9 +11,9 @@ from miscc.config import cfg
 
 # from werkzeug.contrib.profiler import ProfilerMiddleware
 
-#enable(os.environ["TELEMETRY"])
+# enable(os.environ["TELEMETRY"])
 app = Flask(__name__)
-#app.wsgi_app = WSGIApplication(os.environ["TELEMETRY"], app.wsgi_app)
+# app.wsgi_app = WSGIApplication(os.environ["TELEMETRY"], app.wsgi_app)
 
 
 @app.route("/api/v1.0/bird", methods=["POST"])
@@ -72,11 +72,11 @@ def get_bird():
 
 if __name__ == "__main__":
     t0 = time.time()
-    #tc = TelemetryClient(os.environ["TELEMETRY"])
+    # tc = TelemetryClient(os.environ["TELEMETRY"])
 
     # gpu based
-    cfg.CUDA = os.environ["GPU"].lower() == "true"
-    #tc.track_event("container initializing", {"CUDA": str(cfg.CUDA)})
+    cfg.CUDA = os.environ.get("GPU", "false").lower() == "true"
+    # tc.track_event("container initializing", {"CUDA": str(cfg.CUDA)})
 
     # load word dictionaries
     wordtoix, ixtoword = word_index()
@@ -99,5 +99,5 @@ if __name__ == "__main__":
     # app.run(host='0.0.0.0', port=8080, debug = True)
 
     t1 = time.time()
-    #tc.track_event("container start", {"starttime": str(t1 - t0)})
+    # tc.track_event("container start", {"starttime": str(t1 - t0)})
     app.run(host="0.0.0.0", port=8080)
