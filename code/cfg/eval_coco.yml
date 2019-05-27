@@ -21,7 +21,7 @@ TRAIN:
 GAN:
     DF_DIM: 96
     GF_DIM: 48
-    Z_DIM: 50
+    Z_DIM: 100
     R_NUM: 3
 
 TEXT:
