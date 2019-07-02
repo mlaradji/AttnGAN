@@ -1,0 +1,21 @@
+name: AttnGAN
+
+conda_env: conda.yaml
+            
+entry_points:
+  download:
+    command: "python prep.py"
+
+  pretrain:
+    parameters:
+      cfg: {type: string, default: "DAMSM/bird.yml"}
+      gpu: {type: int, default: 0}
+      
+    command: "python src/pretrain_DAMSM.py --cfg ../cfg/{cfg} --gpu {gpu}"
+    
+  train:
+    parameters:
+      cfg: {type: string, default: "bird_attn2.yml"}
+      gpu: {type: int, default: 0}
+      
+    command: "python src/main.py --cfg ../cfg/{cfg} --gpu {gpu}"
