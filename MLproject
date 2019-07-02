@@ -21,7 +21,7 @@ entry_points:
       cfg: {type: string, default: "birds/eval_bird.yml"}
       gpu: {type: int, default: 0}
       
-    command: "python main.py --cfg cfg/{cfg} --gpu {gpu}"
+    command: "python src/main.py --cfg cfg/{cfg} --gpu {gpu}"
       
   train_damsm:
     parameters:
@@ -36,3 +36,12 @@ entry_points:
       gpu: {type: int, default: 0}
       
     command: "python src/main.py --cfg cfg/{cfg} --gpu {gpu}"
+    
+  birds:
+    parameters:
+      gpu: {type: int, default: 0}
+    command: 
+      python src/download.py birds --raw --metadata --overwrite
+      python src/pretrain_DAMSM.py --cfg cfg/birds/DAMSM/bird.yml --gpu {gpu}
+      python src/main.py --cfg cfg/birds/bird_attn2.yml --gpu {gpu}
+      python src/main.py --cfg cfg/birds/eval_bird.yml --gpu {gpu}
