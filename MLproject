@@ -3,19 +3,36 @@ name: AttnGAN
 conda_env: conda.yaml
             
 entry_points:
+  
   download:
-    command: "python prep.py"
-
-  pretrain:
     parameters:
-      cfg: {type: string, default: "DAMSM/bird.yml"}
-      gpu: {type: int, default: 0}
+      dataset: {type: string, default: "birds"}
       
-    command: "python src/pretrain_DAMSM.py --cfg ../cfg/{cfg} --gpu {gpu}"
+    command: "python src/download.py {dataset} --all --overwrite"
     
-  train:
+  create:
     parameters:
-      cfg: {type: string, default: "bird_attn2.yml"}
+      data-dir: {type: string}
+    
+    command: "python src/create_dataset.py --data-dir {data-dir}"
+    
+  generate:
+    parameters:
+      cfg: {type: string, default: "birds/eval_bird.yml"}
       gpu: {type: int, default: 0}
       
-    command: "python src/main.py --cfg ../cfg/{cfg} --gpu {gpu}"
+    command: "python main.py --cfg cfg/{cfg} --gpu {gpu}"
+      
+  train_damsm:
+    parameters:
+      cfg: {type: string, default: "birds/DAMSM/bird.yml"}
+      gpu: {type: int, default: 0}
+      
+    command: "python src/pretrain_DAMSM.py --cfg cfg/{cfg} --gpu {gpu}"
+    
+  train_attngan:
+    parameters:
+      cfg: {type: string, default: "birds/bird_attn2.yml"}
+      gpu: {type: int, default: 0}
+      
+    command: "python src/main.py --cfg cfg/{cfg} --gpu {gpu}"

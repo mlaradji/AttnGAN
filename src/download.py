@@ -122,7 +122,7 @@ def download_file(url: str, save_path: str) -> None:
 
 
 def extract_file(path: str, extract_to: str = None) -> None:
-    if ''.join(file["path"].suffixes) in {".tgz", ".tar.gz"}:
+    if ''.join(path.suffixes) in {".tgz", ".tar.gz"}:
         tar = tarfile.open(path)
         tar.extractall(path=extract_to)
         tar.close()
