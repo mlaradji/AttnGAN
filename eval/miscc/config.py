@@ -10,14 +10,14 @@ __C = edict()
 cfg = __C
 
 # Dataset name: flowers, birds
-__C.DATASET_NAME = 'birds'
-__C.CONFIG_NAME = 'attn2'
-__C.DATA_DIR = ''
+__C.DATASET_NAME = "birds"
+__C.CONFIG_NAME = "attn2"
+__C.DATA_DIR = ""
 __C.GPU_ID = 0
 __C.CUDA = False
 __C.WORKERS = 1
 
-__C.RNN_TYPE = 'LSTM'   # 'GRU'
+__C.RNN_TYPE = "LSTM"  # 'GRU'
 __C.B_VALIDATION = False
 
 __C.TREE = edict()
@@ -35,8 +35,8 @@ __C.TRAIN.GENERATOR_LR = 2e-4
 __C.TRAIN.ENCODER_LR = 2e-4
 __C.TRAIN.RNN_GRAD_CLIP = 0.25
 __C.TRAIN.FLAG = False
-__C.TRAIN.NET_E = 'data/text_encoder200.pth'
-__C.TRAIN.NET_G = 'data/bird_AttnGAN2.pth'
+__C.TRAIN.NET_E = "data/text_encoder200.pth"
+__C.TRAIN.NET_G = "data/bird_AttnGAN2.pth"
 __C.TRAIN.B_NET_D = False
 
 __C.TRAIN.SMOOTH = edict()
@@ -61,4 +61,3 @@ __C.TEXT = edict()
 __C.TEXT.CAPTIONS_PER_IMAGE = 10
 __C.TEXT.EMBEDDING_DIM = 256
 __C.TEXT.WORDS_NUM = 25
-
