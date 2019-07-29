@@ -169,6 +169,8 @@ def main(args):
                 file_id=file["id"],
                 dest_path=file["path"],
                 unzip=file["path"].suffix == ".zip",
+                showsize=True,
+                overwrite=True,
             )
         elif file["source"] == "url":
             download_file(url=file["url"], save_path=file["path"])
