@@ -12,21 +12,21 @@ entry_points:
 
   train_damsm:
     parameters:
-      cfg: {type: string, default: "birds/DAMSM/bird.yml"}
+      dataset: {type: string, default: "birds"}
       gpu: {type: int, default: 0}
       
-    command: "python src/pretrain_DAMSM.py --cfg cfg/{cfg} --gpu {gpu}"
+    command: "python src/pretrain_DAMSM.py --cfg cfg/{dataset}/damsm.yml --gpu {gpu}"
     
   train_attngan:
     parameters:
-      cfg: {type: string, default: "birds/bird_attn2.yml"}
+      dataset: {type: string, default: "birds"}
       gpu: {type: int, default: 0}
       
-    command: "python src/main.py --cfg cfg/{cfg} --gpu {gpu}"
+    command: "python src/main.py --cfg cfg/{dataset}/attn2.yml --gpu {gpu}"
 
   main:
     parameters:
-      cfg: {type: string, default: "birds/eval_bird.yml"}
+      dataset: {type: string, default: "birds"}
       gpu: {type: int, default: 0}
 
-    command: "python src/main.py --cfg cfg/{cfg} --gpu {gpu}"
+    command: "python src/main.py --cfg cfg/{dataset}/eval.yml --gpu {gpu}"
